@@ -3,21 +3,32 @@ import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 
 import React, { useState } from "react";
+import { io } from "socket.io-client";
 
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { Timeline } from "primereact/timeline";
 
 function App() {
-  const [name, setName] = useState("");
+  const socket = io("http://localhost:3001");
+
+  socket.on("connect", () => {
+    console.log(socket.id);
+  });
+
+  socket.on("chat", (arg) => setMessages([...messages, arg]));
+
+  const [author, setAuthor] = useState("");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([
     { author: "Bot", message: "Chat with your friends" },
   ]);
 
   const addMessage = () => {
-    setMessages([...messages, { author: name, message }]);
-    setName("");
+    const send = { author, message };
+    setMessages([...messages, send]);
+    socket.emit("chat", send);
+    setAuthor("");
     setMessage("");
   };
 
@@ -30,15 +41,15 @@ function App() {
           </span>
           <InputText
             placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
           />
           <InputText
             placeholder="Chat"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
-          <Button label="Send" onClick={(e) => addMessage()} />
+          <Button label="Send" onClick={() => addMessage()} />
         </div>
       </div>
 
