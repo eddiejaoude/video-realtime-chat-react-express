@@ -9,26 +9,25 @@ import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { Timeline } from "primereact/timeline";
 
+const socket = io("http://localhost:3001");
+
+socket.on("connect", () => {
+  console.log(socket.id);
+});
+
 function App() {
-  const socket = io("http://localhost:3001");
-
-  socket.on("connect", () => {
-    console.log(socket.id);
-  });
-
-  socket.on("chat", (arg) => setMessages([...messages, arg]));
-
   const [author, setAuthor] = useState("");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([
     { author: "Bot", message: "Chat with your friends" },
   ]);
 
+  socket.on("chat", (arg) => setMessages([...messages, arg]));
+
   const addMessage = () => {
     const send = { author, message };
     setMessages([...messages, send]);
     socket.emit("chat", send);
-    setAuthor("");
     setMessage("");
   };
 
