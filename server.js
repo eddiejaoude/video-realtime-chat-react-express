@@ -5,9 +5,14 @@ const io = require("socket.io")(httpServer, {
   },
 });
 
+const messages = [];
 io.on("connection", (socket) => {
-  //   socket.emit("chat", { author: "guest", message: "Hello World" });
-  socket.on("chat", (args) => socket.broadcast.emit("chat", args));
+  messages.forEach((message) => socket.emit("chat", message));
+
+  socket.on("chat", (args) => {
+    socket.broadcast.emit("chat", args);
+    messages.push(args);
+  });
 });
 
 httpServer.listen(3001);
