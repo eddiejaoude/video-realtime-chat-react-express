@@ -25,10 +25,16 @@ function App() {
   socket.on("chat", (arg) => setMessages([...messages, arg]));
 
   const addMessage = () => {
-    const send = { author, message };
-    setMessages([...messages, send]);
-    socket.emit("chat", send);
-    setMessage("");
+    if(author && message)
+    {
+      const send = { author, message };
+      setMessages([...messages, send]);
+      socket.emit("chat", send);
+      setMessage("");
+    }
+    else{
+      console.error("Name and/or Chat field cannot be empty.");
+    }
   };
 
   return (
